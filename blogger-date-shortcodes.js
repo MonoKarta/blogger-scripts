@@ -1,4 +1,4 @@
-window.onload = function () {
+document.addEventListener("DOMContentLoaded", function () {
     console.log("Скрипт завантажено");
     const now = new Date(),
         monthsUA = [
@@ -11,7 +11,7 @@ window.onload = function () {
     if (yearEl) {
         yearEl.textContent = now.getFullYear();
     } else {
-        console.error("Елемент #current-year не знайдено");
+        console.warn("Елемент #current-year не знайдено.");
     }
 
     // Місяць і рік
@@ -19,7 +19,7 @@ window.onload = function () {
     if (monthYearEl) {
         monthYearEl.textContent = `${monthsUA[now.getMonth()]} ${now.getFullYear()}`;
     } else {
-        console.error("Елемент #current-month-year не знайдено");
+        console.warn("Елемент #current-month-year не знайдено.");
     }
 
     // Повна дата
@@ -31,6 +31,6 @@ window.onload = function () {
             now.getFullYear()
         ].join(".");
     } else {
-        console.error("Елемент #current-date не знайдено");
+        console.warn("Елемент #current-date не знайдено.");
     }
-};
+});
