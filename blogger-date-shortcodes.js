@@ -1,8 +1,12 @@
 window.onload = function () {
+    console.log("Скрипт завантажено");
     const now = new Date(),
-          monthsUA = ["січень", "лютий", "березень", "квітень", "травень", "червень", "липень", "серпень", "вересень", "жовтень", "листопад", "грудень"];
+        monthsUA = [
+            "січень", "лютий", "березень", "квітень", "травень", "червень",
+            "липень", "серпень", "вересень", "жовтень", "листопад", "грудень"
+        ];
 
-    // Шорткод для року
+    // Рік
     const yearEl = document.getElementById("current-year");
     if (yearEl) {
         yearEl.textContent = now.getFullYear();
@@ -10,7 +14,7 @@ window.onload = function () {
         console.error("Елемент #current-year не знайдено");
     }
 
-    // Шорткод для місяця і року
+    // Місяць і рік
     const monthYearEl = document.getElementById("current-month-year");
     if (monthYearEl) {
         monthYearEl.textContent = `${monthsUA[now.getMonth()]} ${now.getFullYear()}`;
@@ -18,7 +22,7 @@ window.onload = function () {
         console.error("Елемент #current-month-year не знайдено");
     }
 
-    // Шорткод для повної дати
+    // Повна дата
     const dateEl = document.getElementById("current-date");
     if (dateEl) {
         dateEl.textContent = [
