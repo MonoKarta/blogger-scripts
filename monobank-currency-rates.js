@@ -1,101 +1,78 @@
-(function () {
-  const allowedPages = [
-    "https://www.monokarta.pp.ua/2025/01/kurs-valyut-monobank.html",
-    "https://www.monokarta.pp.ua/2025/01/kurs-usd-monobank.html",
-    "https://www.monokarta.pp.ua/2025/01/kurs-eur-monobank.html",
-    "https://www.monokarta.pp.ua/2025/01/kurs-pln-monobank.html",
-    "https://www.monokarta.pp.ua/2025/01/kurs-gbp-monobank.html",
-    "https://www.monokarta.pp.ua/2025/01/kurs-czk-monobank.html",
-    "https://www.monokarta.pp.ua/2025/01/kurs-bgn-monobank.html",
-    "https://www.monokarta.pp.ua/2025/01/kurs-try-monobank.html",
-    "https://www.monokarta.pp.ua/2025/01/kurs-chf-monobank.html",
-    "https://www.monokarta.pp.ua/2025/01/kurs-gel-monobank.html"
-  ];
-
-  // Перевірка, чи поточна сторінка є дозволеною
-  const currentUrl = window.location.href.split('?')[0];
-  if (!allowedPages.includes(currentUrl)) {
-    console.log("Скрипт не виконується на цій сторінці.");
-    return;
-  }
-
-  console.log("Скрипт запущено на дозволеній сторінці:", currentUrl);
-
+(async function () {
   const currencyNames = {
-    840: "USD", // Долар
-    978: "EUR", // Євро
-    985: "PLN", // Злотий
-    826: "GBP", // Фунт
-    203: "CZK", // Крона
-    975: "BGN", // Лев
-    949: "TRY", // Ліра
-    756: "CHF", // Франк
-    981: "GEL", // Ларі
-    980: "UAH", // Гривня
+    840: 'USD', // Долар
+    978: 'EUR', // Євро
+    985: 'PLN', // Злотий
+    826: 'GBP', // Фунт
+    203: 'CZK', // Крона
+    975: 'BGN', // Лев
+    949: 'TRY', // Ліра
+    756: 'CHF', // Франк
+    981: 'GEL', // Ларі
+    980: 'UAH', // Гривня
   };
 
-  async function fetchCurrencyRates() {
-    const API_URL = "https://api.monobank.ua/bank/currency";
+  const API_URL = 'https://api.monobank.ua/bank/currency';
 
+  async function fetchCurrencyRates() {
     try {
       const response = await fetch(API_URL);
-      if (!response.ok) throw new Error("Помилка завантаження даних з API.");
+      if (!response.ok) throw new Error('Помилка завантаження даних з API.');
 
       const data = await response.json();
       const rates = {};
 
-      data.forEach((item) => {
+      data.forEach(item => {
         const baseCurrency = currencyNames[item.currencyCodeA];
         const targetCurrency = currencyNames[item.currencyCodeB];
 
         if (baseCurrency && targetCurrency) {
-          if (targetCurrency === "UAH") {
-            rates[`${baseCurrency}_UAH_BUY`] = item.rateBuy
-              ? item.rateBuy.toFixed(2)
-              : null;
-            rates[`${baseCurrency}_UAH_SELL`] = item.rateSell
-              ? item.rateSell.toFixed(2)
-              : null;
-          }
-          if (targetCurrency === "USD") {
-            rates[`${baseCurrency}_USD_SELL`] = item.rateCross
-              ? item.rateCross.toFixed(2)
-              : null;
+          if (targetCurrency === 'UAH') {
+            rates[`${baseCurrency}_UAH_BUY`] = item.rateBuy ? item.rateBuy.toFixed(2) : '—';
+            rates[`${baseCurrency}_UAH_SELL`] = item.rateSell ? item.rateSell.toFixed(2) : '—';
+          } else if (targetCurrency === 'USD') {
+            rates[`${baseCurrency}_USD_SELL`] = item.rateCross ? item.rateCross.toFixed(2) : '—';
           }
         }
       });
 
-      // Збереження курсів у глобальному об'єкті
-      window.currencyRates = rates;
+      // Зберігаємо дані в localStorage
+      localStorage.setItem('currencyRates', JSON.stringify(rates));
+      localStorage.setItem('lastUpdate', new Date().toISOString());
 
-      // Оновлення значень у таблиці
-      replaceShortcodes();
+      return rates;
     } catch (error) {
-      console.error("Помилка:", error);
+      console.error('Помилка:', error);
+
+      // Повертаємо збережені дані, якщо вони є
+      const savedRates = localStorage.getItem('currencyRates');
+      if (savedRates) {
+        console.warn('Використовуються збережені дані.');
+        return JSON.parse(savedRates);
+      }
+
+      throw new Error('Неможливо завантажити дані та немає збережених даних.');
     }
   }
 
-  function replaceShortcodes() {
-    const elements = document.querySelectorAll("[data-shortcode]");
-    const rates = window.currencyRates;
-
-    elements.forEach((element) => {
+  function replaceShortcodes(rates) {
+    const elements = document.querySelectorAll('[data-shortcode]');
+    elements.forEach(element => {
       const shortcode = element.dataset.shortcode;
-
-      if (rates && rates[shortcode]) {
-        element.textContent = rates[shortcode]; // Якщо значення існує
-      } else {
-        element.textContent = "—"; // Якщо даних немає
-      }
+      element.textContent = rates[shortcode] || '—';
     });
   }
 
-  // Запуск оновлення кожні 10 хвилин
-  function startCurrencyUpdates() {
-    fetchCurrencyRates(); // Перше завантаження
-    setInterval(fetchCurrencyRates, 10 * 60 * 1000); // Оновлення кожні 10 хвилин
+  async function startCurrencyUpdates() {
+    try {
+      const rates = await fetchCurrencyRates();
+      replaceShortcodes(rates);
+    } catch (error) {
+      console.error('Помилка оновлення курсів:', error);
+    }
   }
 
-  // Запуск оновлень
-  startCurrencyUpdates();
+  // Запускаємо оновлення кожні 10 хвилин
+  setInterval(startCurrencyUpdates, 10 * 60 * 1000); // 10 хвилин
+  await startCurrencyUpdates();
 })();
