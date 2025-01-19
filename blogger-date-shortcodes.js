@@ -19,28 +19,27 @@ document.addEventListener("DOMContentLoaded", function updateShortcodes() {
         return;
     }
 
-    // Оновлюємо дати
-    const yearEl = document.getElementById("current-year");
-    const monthYearEl = document.getElementById("current-month-year");
-    const dateEl = document.getElementById("current-date");
-    const monthGenitiveEl = document.getElementById("current-month-genitive");
+    // Оновлюємо всі шорткоди
+    function updateElements(selector, value) {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => el.textContent = value);
+    }
 
-    if (yearEl) {
-        yearEl.textContent = now.getFullYear();
-    }
-    if (monthYearEl) {
-        monthYearEl.textContent = `${monthsUA[now.getMonth()]} ${now.getFullYear()}`;
-    }
-    if (dateEl) {
-        dateEl.textContent = [
-            String(now.getDate()).padStart(2, "0"),
-            String(now.getMonth() + 1).padStart(2, "0"),
-            now.getFullYear()
-        ].join(".");
-    }
-    if (monthGenitiveEl) {
-        monthGenitiveEl.textContent = monthsGenitiveUA[now.getMonth()];
-    }
+    // Рік
+    updateElements("#current-year", now.getFullYear());
+
+    // Місяць і рік
+    updateElements("#current-month-year", `${monthsUA[now.getMonth()]} ${now.getFullYear()}`);
+
+    // Повна дата
+    updateElements("#current-date", [
+        String(now.getDate()).padStart(2, "0"),
+        String(now.getMonth() + 1).padStart(2, "0"),
+        now.getFullYear()
+    ].join("."));
+
+    // Місяць у родовому відмінку
+    updateElements("#current-month-genitive", monthsGenitiveUA[now.getMonth()]);
 
     // Зберігаємо оновлення дати в localStorage
     localStorage.setItem("lastDateUpdate", currentDateKey);
