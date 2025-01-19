@@ -28,7 +28,7 @@
 
   // Перевірка сторінки
   const currentPage = window.location.href.split('?')[0];
-  if (!allowedPages.includes(currentPage) && !allowedPages.some(page => currentPage.startsWith(page))) {
+  if (!allowedPages.includes(currentPage)) {
     console.log(`Скрипт не запущено: ${currentPage}`);
     return;
   }
@@ -47,13 +47,9 @@
         const baseCurrency = currencyNames[item.currencyCodeA];
         const targetCurrency = currencyNames[item.currencyCodeB];
 
-        if (baseCurrency && targetCurrency) {
-          if (targetCurrency === 'UAH') {
-            rates[`${baseCurrency}_UAH_BUY`] = item.rateBuy ? item.rateBuy.toFixed(2) : '—';
-            rates[`${baseCurrency}_UAH_SELL`] = item.rateSell ? item.rateSell.toFixed(2) : '—';
-          } else if (targetCurrency === 'USD') {
-            rates[`${baseCurrency}_USD_SELL`] = item.rateCross ? item.rateCross.toFixed(2) : '—';
-          }
+        if (baseCurrency && targetCurrency && targetCurrency === 'UAH') {
+          rates[`${baseCurrency}_UAH_BUY`] = item.rateBuy ? item.rateBuy.toFixed(2) : '—';
+          rates[`${baseCurrency}_UAH_SELL`] = item.rateSell ? item.rateSell.toFixed(2) : '—';
         }
       });
 
