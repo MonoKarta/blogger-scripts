@@ -16,7 +16,15 @@
   const CACHE_TIME = 5 * 60 * 1000; // 5 хвилин у мілісекундах
   const allowedPages = [
     'https://www.monokarta.pp.ua/2025/01/kurs-valyut-monobank.html',
-    // Додайте інші дозволені сторінки
+    'https://www.monokarta.pp.ua/2025/01/kurs-usd-monobank.html',
+    'https://www.monokarta.pp.ua/2025/01/kurs-eur-monobank.html',
+    'https://www.monokarta.pp.ua/2025/01/kurs-pln-monobank.html',
+    'https://www.monokarta.pp.ua/2025/01/kurs-gbp-monobank.html',
+    'https://www.monokarta.pp.ua/2025/01/kurs-czk-monobank.html',
+    'https://www.monokarta.pp.ua/2025/01/kurs-bgn-monobank.html',
+    'https://www.monokarta.pp.ua/2025/01/kurs-try-monobank.html',
+    'https://www.monokarta.pp.ua/2025/01/kurs-chf-monobank.html',
+    'https://www.monokarta.pp.ua/2025/01/kurs-gel-monobank.html',
   ];
 
   const currentPage = window.location.href.split('?')[0];
@@ -47,7 +55,11 @@
 
         if (baseCurrency && targetCurrency && targetCurrency === 'UAH') {
           rates[`${baseCurrency}_UAH_BUY`] = item.rateBuy ? item.rateBuy.toFixed(2) : '—';
-          rates[`${baseCurrency}_UAH_SELL`] = item.rateSell ? item.rateSell.toFixed(2) : '—';
+          rates[`${baseCurrency}_UAH_SELL`] = item.rateSell
+            ? item.rateSell.toFixed(2)
+            : item.rateCross
+            ? item.rateCross.toFixed(2)
+            : '—';
         }
       });
 
@@ -72,7 +84,7 @@
     const elements = document.querySelectorAll('[data-shortcode]');
     elements.forEach(element => {
       const shortcode = element.dataset.shortcode;
-      element.textContent = rates[shortcode] || '—';
+      element.textContent = rates[shortcode] || 'Дані недоступні';
     });
   }
 
