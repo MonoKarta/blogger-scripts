@@ -13,6 +13,27 @@
   };
 
   const API_URL = 'https://api.monobank.ua/bank/currency';
+  const allowedPages = [
+    'https://www.monokarta.pp.ua/2025/01/kurs-valyut-monobank.html',
+    'https://www.monokarta.pp.ua/2025/01/kurs-usd-monobank.html',
+    'https://www.monokarta.pp.ua/2025/01/kurs-eur-monobank.html',
+    'https://www.monokarta.pp.ua/2025/01/kurs-pln-monobank.html',
+    'https://www.monokarta.pp.ua/2025/01/kurs-gbp-monobank.html',
+    'https://www.monokarta.pp.ua/2025/01/kurs-czk-monobank.html',
+    'https://www.monokarta.pp.ua/2025/01/kurs-bgn-monobank.html',
+    'https://www.monokarta.pp.ua/2025/01/kurs-try-monobank.html',
+    'https://www.monokarta.pp.ua/2025/01/kurs-chf-monobank.html',
+    'https://www.monokarta.pp.ua/2025/01/kurs-gel-monobank.html',
+  ];
+
+  // Перевірка сторінки
+  const currentPage = window.location.href.split('?')[0];
+  if (!allowedPages.includes(currentPage) && !allowedPages.some(page => currentPage.startsWith(page))) {
+    console.log(`Скрипт не запущено: ${currentPage}`);
+    return;
+  }
+
+  console.log(`Скрипт запущено на дозволеній сторінці: ${currentPage}`);
 
   async function fetchCurrencyRates() {
     try {
@@ -72,7 +93,7 @@
     }
   }
 
-  // Запускаємо оновлення кожні 10 хвилин
+  // Оновлення кожні 10 хвилин
   setInterval(startCurrencyUpdates, 10 * 60 * 1000); // 10 хвилин
   await startCurrencyUpdates();
 })();
