@@ -13,29 +13,27 @@
   };
 
   const API_URL = 'https://api.monobank.ua/bank/currency';
+  const CACHE_TIME = 5 * 60 * 1000; // 5 хвилин у мілісекундах
   const allowedPages = [
     'https://www.monokarta.pp.ua/2025/01/kurs-valyut-monobank.html',
-    'https://www.monokarta.pp.ua/2025/01/kurs-usd-monobank.html',
-    'https://www.monokarta.pp.ua/2025/01/kurs-eur-monobank.html',
-    'https://www.monokarta.pp.ua/2025/01/kurs-pln-monobank.html',
-    'https://www.monokarta.pp.ua/2025/01/kurs-gbp-monobank.html',
-    'https://www.monokarta.pp.ua/2025/01/kurs-czk-monobank.html',
-    'https://www.monokarta.pp.ua/2025/01/kurs-bgn-monobank.html',
-    'https://www.monokarta.pp.ua/2025/01/kurs-try-monobank.html',
-    'https://www.monokarta.pp.ua/2025/01/kurs-chf-monobank.html',
-    'https://www.monokarta.pp.ua/2025/01/kurs-gel-monobank.html',
+    // Додайте інші дозволені сторінки
   ];
 
-  // Перевірка сторінки
   const currentPage = window.location.href.split('?')[0];
   if (!allowedPages.includes(currentPage)) {
     console.log(`Скрипт не запущено: ${currentPage}`);
     return;
   }
 
-  console.log(`Скрипт запущено на дозволеній сторінці: ${currentPage}`);
-
   async function fetchCurrencyRates() {
+    const lastUpdate = localStorage.getItem('lastUpdate');
+    const now = Date.now();
+
+    if (lastUpdate && now - new Date(lastUpdate).getTime() < CACHE_TIME) {
+      console.log('Дані кешуються. Використовуються збережені дані.');
+      return JSON.parse(localStorage.getItem('currencyRates'));
+    }
+
     try {
       const response = await fetch(API_URL);
       if (!response.ok) throw new Error('Помилка завантаження даних з API.');
@@ -53,7 +51,6 @@
         }
       });
 
-      // Зберігаємо дані в localStorage
       localStorage.setItem('currencyRates', JSON.stringify(rates));
       localStorage.setItem('lastUpdate', new Date().toISOString());
 
@@ -61,7 +58,6 @@
     } catch (error) {
       console.error('Помилка:', error);
 
-      // Повертаємо збережені дані, якщо вони є
       const savedRates = localStorage.getItem('currencyRates');
       if (savedRates) {
         console.warn('Використовуються збережені дані.');
@@ -89,7 +85,6 @@
     }
   }
 
-  // Оновлення кожні 10 хвилин
-  setInterval(startCurrencyUpdates, 10 * 60 * 1000); // 10 хвилин
   await startCurrencyUpdates();
+  setInterval(startCurrencyUpdates, CACHE_TIME); // Оновлення кожні 5 хвилин
 })();
