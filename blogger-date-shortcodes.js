@@ -9,45 +9,33 @@ document.addEventListener("DOMContentLoaded", function updateShortcodes() {
         "липня", "серпня", "вересня", "жовтня", "листопада", "грудня"
     ];
 
-    // Перевірка останнього оновлення
-    const lastUpdate = localStorage.getItem("lastDateUpdate");
-    const currentDateKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
-
-    // Якщо дата не змінювалася, виходимо
-    if (lastUpdate === currentDateKey) {
-        console.log("Дати вже оновлені сьогодні. Пропускаємо...");
-        return;
-    }
-
-    // Оновлюємо всі шорткоди
+    // Функція для оновлення елементів на сторінці
     function updateElements(selector, value) {
         const elements = document.querySelectorAll(selector);
-        elements.forEach(el => el.textContent = value);
+        elements.forEach(el => {
+            el.textContent = value; // Вставка тексту у span
+        });
     }
 
-    // Рік
-    updateElements("#current-year", now.getFullYear());
-
-    // Місяць і рік
-    updateElements("#current-month-year", `${monthsUA[now.getMonth()]} ${now.getFullYear()}`);
-
-    // Повна дата
+    // Оновлюємо значення шорткодів
+    updateElements("#current-year", now.getFullYear()); // Рік
+    updateElements("#current-month-year", `${monthsUA[now.getMonth()]} ${now.getFullYear()}`); // Місяць і рік
     updateElements("#current-date", [
         String(now.getDate()).padStart(2, "0"),
         String(now.getMonth() + 1).padStart(2, "0"),
         now.getFullYear()
-    ].join("."));
+    ].join(".")); // Повна дата
+    updateElements("#current-month-genitive", monthsGenitiveUA[now.getMonth()]); // Місяць у родовому відмінку
 
-    // Місяць у родовому відмінку
-    updateElements("#current-month-genitive", monthsGenitiveUA[now.getMonth()]);
+    // Оновлення вмісту тега <title> (якщо потрібно)
+    const titleElement = document.querySelector("title");
+    if (titleElement) {
+        const updatedTitle = titleElement.textContent.replace(
+            /<span id="current-date"><\/span>/g,
+            `${String(now.getDate()).padStart(2, "0")}.${String(now.getMonth() + 1).padStart(2, "0")}.${now.getFullYear()}`
+        );
+        titleElement.textContent = updatedTitle; // Заміна дати у <title>
+    }
 
-    // Зберігаємо оновлення дати в localStorage
-    localStorage.setItem("lastDateUpdate", currentDateKey);
-
-    console.log("Дати оновлено:", {
-        year: now.getFullYear(),
-        monthYear: `${monthsUA[now.getMonth()]} ${now.getFullYear()}`,
-        date: `${String(now.getDate()).padStart(2, "0")}.${String(now.getMonth() + 1).padStart(2, "0")}.${now.getFullYear()}`,
-        monthGenitive: monthsGenitiveUA[now.getMonth()]
-    });
+    console.log("Дати оновлено.");
 });
